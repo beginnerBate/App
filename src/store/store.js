@@ -6,8 +6,8 @@ import loS from '@/common/js/loStorage'
 const init = [
     {name:'isLogin',value:''},
     {name:'token',value:''},
-    {name:'headmenu',value:'首页'},
-    {name:'headText',value:''}
+    {name:'headmenu',value:''},
+    {name:'headText',value:'体温监测'}
 ]
 loS.initData(init)
 Vue.use(Vuex)
