@@ -23,3 +23,10 @@ new Vue({
   },
   template: '<App/>'
 })
+
+// 路由
+router.beforeEach((to, from, next)=>{
+  // 设置headText
+  store.commit('changeheadText',to.name)
+  next()
+})

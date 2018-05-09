@@ -22,14 +22,17 @@ export default new Router({
       children: [
         {
           path: 'temp',
+          name:'体温检测',
           component: Temp
         },
         {
            path: 'alarm',
+           name:'输液报警',
            component: Alarm
         },
         {
            path: 'trans',
+           name:'输液监测',
            component:Trans
         }
       ]
