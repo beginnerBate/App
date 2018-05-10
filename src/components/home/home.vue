@@ -31,16 +31,7 @@ export default {
   height 100%
   overflow hidden
   display block
-.home-top
-  height 45px
-  border-bottom 1px solid #2782d7
-  background-color #2782d7
-  color #ffffff
-  font-size 18px
-  letter-spacing 3px
-  text-align center
-  line-height 45px
-  font-weight 600
+
 .home-content
   height calc(100% - 95px)
 .home-bottom

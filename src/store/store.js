@@ -2,12 +2,14 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import loS from '@/common/js/loStorage'
 
+
 // 在使用vuex之前使用，先初始化相关数据
 const init = [
     {name:'isLogin',value:''},
     {name:'token',value:''},
     {name:'headmenu',value:''},
-    {name:'headText',value:'体温监测'}
+    {name:'headText',value:'体温监测'},
+    {name:'bedId', value:''}
 ]
 loS.initData(init)
 Vue.use(Vuex)
@@ -17,7 +19,8 @@ const state = {
     isLogin: loS.getItem('isLogin', true),
     headText: loS.getItem('headText', true),
     token: loS.getItem('token',true),
-    tabdisplay: false
+    tabdisplay: false,
+    bedId:loS.getItem('bedId',true)
 }
 const mutations = {
     changeheadmenu (state, name) {
@@ -42,6 +45,10 @@ const mutations = {
     },
     setTab (state, code) {
         state.tabdisplay = code
+    },
+    setbedId (state, code) {
+        
+        state.bedId = code
     }
 }
 export default new Vuex.Store({

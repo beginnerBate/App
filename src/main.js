@@ -27,6 +27,9 @@ new Vue({
 // 路由
 router.beforeEach((to, from, next)=>{
   // 设置headText
-  store.commit('changeheadText',to.name)
+  // console.log(to)
+  if (to.name) {
+    store.commit('changeheadText',to.name)
+  }
   next()
 })

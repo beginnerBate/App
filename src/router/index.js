@@ -6,6 +6,7 @@ Vue.use(Router)
 // import Login from 'components/login/login'
 import Home from 'components/home/home'
 import Temp from 'components/temp/temp'
+import TempDisc from 'components/temp-disc/temp-disc'
 import Trans from 'components/trans/trans'
 import Alarm from 'components/alarm/alarm'
 
@@ -23,7 +24,13 @@ export default new Router({
         {
           path: 'temp',
           name:'体温检测',
-          component: Temp
+          component: Temp,
+          children:[
+            {
+              path:':id',
+              component: TempDisc
+            }
+          ]
         },
         {
            path: 'alarm',
