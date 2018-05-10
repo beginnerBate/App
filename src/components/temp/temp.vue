@@ -2,12 +2,12 @@
   <div class="m-alarm" ref="wrapper">
     <div>
       <!-- 顶部提示信息 -->
-      <div class="top-tip">
+      <div class="top-tip" v-show="text">
         <span class="refresh" v-show="text">{{text}}</span>
       </div>
       <!-- 列表 -->
       <ul class="list-content list-content-hook">
-        <li v-for="(item, index) in list" :key="index" class="list-item" @click="seltItem(22)">
+        <li v-for="(item, index) in list" :key="index" class="list-item" @click="seltItem(item.bedNumber)">
           <div class="list-item-wrapper">
             <div class="list-item-left">              
               <span class="bed">
@@ -18,7 +18,8 @@
               <span class="bed-num">
                 体温: {{item.temperatureValue}}℃
               </span>
-               <span class="time">{{item.recordTime | formatDate}}</span>
+               <span class="time">{{item.recordTime }}</span>
+               <!-- <span class="time">{{item.recordTime | formatDate}}</span> -->
             </div>
             <div  class="list-item-bottom">
               <i class="fa fa-angle-right arrow"></i>
@@ -30,9 +31,10 @@
         1. 底部提示信息
         2. 这里有一种情况 没有更多数据的时候 文本显示''暂无更多数据'
        -->
-       <!-- <div class="bottom-tip">
-         <span class="loading-hook">暂无更多数据</span>
-       </div> -->
+       <div class="bottom-tip" >
+         <span class="loading-hook" v-show="textdown && !textdown">{{textdown}}</span>
+         <span class="nodata-hook" v-show="textnomore && !textdown">{{textnomore}}</span>
+       </div>
     </div>
     <router-view></router-view>
   </div>
@@ -45,6 +47,8 @@ export default {
   data() {
     return {
       text: '',
+      textdown:'',
+      textnomore:'',
       list:''
     }
   },
@@ -60,43 +64,48 @@ export default {
   },
   methods: {
     loadData () {
+      this.text = '加载中'
       getTemp().then((res)=>{
         if (res.code==200) {
+          this.text = '刷新成功'
+          this.textdown = ''
+          this.textnomore = '没有更多数据了'
           this.list = res.data
+          setTimeout(()=>{
+            this.text = ''
+          },1000)
+          this.$nextTick(() => {
+            if (!this.scroll) {
+              this.scroll = new BScroll(this.$refs.wrapper, {
+                pullDownRefresh:{
+                  threshold:50,
+                  stop:0
+                },
+                pullUpLoad:{
+                  threshold:-10
+                },
+                click:true
+              })
+              this.scroll.on('pullingDown', () => {
+                // 下拉动作
+                this.text = '加载中'
+                this.loadData()
+                this.scroll.finishPullDown()
+              })
+              this.scroll.on('pullingUp', () => {
+                this.textdown = '加载中'
+                this.loadData()
+                this.scroll.finishPullUp()
+              })
+            } else {
+              this.scroll.finishPullUp()
+              this.scroll.refresh()
+            }
+        })
         }
       })
     },
     pullup() {
-      this.$nextTick(() => {
-        if (!this.scroll) {
-          this.scroll = new BScroll(this.$refs.wrapper, {
-            pullDownRefresh:{
-              threshold:50,
-              stop:0
-            },
-            pullUpLoad:{
-              threshold:-10
-            },
-            click:true
-          })
-          this.scroll.on('pullingDown', () => {
-            // 下拉动作
-            console.log('pullup')
-            this.text = '加载中'
-            setTimeout(()=>{
-              this.text = '刷新成功'
-               this.scroll.finishPullDown()
-            },2000)
-           
-          })
-          this.scroll.on('pullingUp', () => {
-            console.log('pullingup')
-            this.scroll.finishPullDown()
-          })
-        } else {
-          this.scroll.refresh()
-        }
-        })
     },
     seltItem(id) {
       console.log(id)

@@ -29,6 +29,10 @@
         type: Boolean,
         default: false
       },
+      pulldown: {
+        type: Boolean,
+        default: false
+      },
       beforeScroll: {
         type: Boolean,
         default: false
@@ -67,7 +71,14 @@
             }
           })
         }
-
+        // 是否派发顶部下拉事件，用于下拉刷新
+        if (this.pulldown) {
+          this.scroll.on('pullingDown', () => {
+                    this.beforePullDown = false
+                    this.isPullingDown = true
+                    this.$emit('pullingDown')
+                  })
+        }
         if (this.beforeScroll) {
           this.scroll.on('beforeScrollStart', () => {
             this.$emit('beforeScroll')

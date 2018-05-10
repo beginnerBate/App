@@ -7,19 +7,35 @@
         </span>
         <span class="name">体温记录</span>
       </header>
-      <ul class="temp-record-list">
-        <li v-for="(item,index) in list" :key="index">
-          <span class="id">
-            {{index+1}}
-          </span>
-          <span>
-            温度: {{item.temperatureValue}}℃
-          </span>
-          <span>
-            记录时间: 2017-12-02 12:12:00
-          </span>
-        </li>
-      </ul>
+      <div class="list" ref="disclist">
+        <div>
+          <!-- 下拉刷新 -->
+           <div class="top-tip"></div>
+           <div>
+              <ul class="temp-record-list">
+                <li v-for="(item,index) in list" :key="index">
+                  <span class="id">
+                    {{index+1}}
+                  </span>
+                  <span>
+                    温度: {{item.temperatureValue}}℃
+                  </span>
+                  <span>
+                    记录时间: 2017-12-02 12:12:00
+                  </span>
+                </li>
+              </ul>
+           </div>
+           <!-- 上拉加载更多 -->
+           <div class="bottom-tip">
+             <span class="loading-hook">{{bottomTxt}}</span>
+           </div>
+          <div v-show="list.length" class="loading-container">
+            <i class="fa fa-spinner fa-spin fa-3x fa-fw"></i>
+            <span class="sr-only">Loading...</span>
+          </div>
+        </div>
+      </div>
     </div>
   </transition>
 </template>
@@ -27,11 +43,17 @@
 import {mapState} from 'vuex'
 import {formatDate} from 'common/js/date.js'
 import {getTempByBed} from 'api/getTemp.js'
+import BScroll from 'better-scroll'
 export default {
   data() {
     return {
-      list: '',
-      currentPage:1
+      list: [],
+      currentPage:1,
+      scrollY:0,
+      bottomTxt:'',
+      topTxt:'',
+      pulldown:true,
+      pullup:true
     }
   },
   computed: {
@@ -45,8 +67,13 @@ export default {
       return formatDate(date, 'YY-MM-DD hh:mm:ss')
       }
   },
+  components:{
+    VScroll
+  },
   created () {
     this.loadData()
+    this.probeType = 3
+    this.listenScroll = true
   },  
   mounted(){
   },
@@ -61,8 +88,34 @@ export default {
             this.list = res.data
           }
         })
+    },
+    _initScroll() {
+        this.discScroll = new BScroll(this.$refs.disclist, {
+          probeType: 3,    
+          click:true,
+          pullUpLoad: {   // 配置上啦加载
+            threshold: -80   //上啦80px的时候加载
+          },
+          pullDownRefresh: {
+            threshold: 50,
+            stop: 20
+          },
+          mouseWheel: {    // pc端同样能滑动
+            speed: 20,
+            invert: false
+          },
+          useTransition:false,  // 防止iphone微信滑动卡顿
+        });
+        // 上拉加载数据
+        this.orderScroll.on('pullingUp',()=>{
+          this.scrollFinish = false;
+          // 防止一次上拉触发两次事件,不要在ajax的请求数据完成事件中调用下面的finish方法,否则有可能一次上拉触发两次上拉事件
+          this.orderScroll.finishPullUp();
+          // 加载数据
+          this.getIncomeDetail(this.nextPage);
+        });
     }
-  },
+  }
 }
 </script>
 <style lang="stylus" scoped>
@@ -103,4 +156,15 @@ export default {
       height 20px
       background #e3e5e8
       border-radius 50%
+.list
+  position: fixed
+  top: 45px
+  bottom: 0
+  width: 100%
+  overflow hidden
+.loading-container
+  position: fixed
+  width: 100%
+  top: 50%
+  transform: translateY(-50%)
 </style>
